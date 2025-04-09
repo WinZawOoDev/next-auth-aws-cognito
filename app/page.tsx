@@ -2,8 +2,8 @@ export default function Home() {
   async function handleFormAction(formData: FormData) {
     "use server";
     console.log("🚀 ~ handleFormAction ~ formData:", formData);
-    const name = formData.get("name");
-    console.log("🚀 ~ handleFormAction ~ name:", name);
+    const email = formData.get("email");
+    console.log("🚀 ~ handleFormAction ~ email:", email);
   }
 
   return (

@@ -11,7 +11,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   async function handleFormAction(formData: FormData) {
     "use server";
-    console.log("🚀 ~ handleFormAction ~ formData:", formData);
+    formData.append("redirectTo", "/dashboard");
     await signIn("credentials", formData);
   }
 
