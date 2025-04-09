@@ -14,9 +14,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           let user = null;
 
-          //   const { email, password } = await signInSchema.parseAsync(
-          //     credentials
-          //   );
+            const { email, password } = await signInSchema.parseAsync(
+              credentials
+            );
 
           user = { id: "1", email: "John Doe", password: "1o1901901930" }; // Added 'id' field to match the User type
 
