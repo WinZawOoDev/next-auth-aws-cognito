@@ -1,11 +1,13 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Cognito from "next-auth/providers/cognito";
 import { signInSchema } from "./lib/zod";
 import { ZodError } from "zod";
-import { nanoid } from 'nanoid'
+import { nanoid } from "nanoid";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
+    Cognito,
     Credentials({
       credentials: {
         email: {},
@@ -35,5 +37,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       },
     }),
-  ]
+  ],
 });

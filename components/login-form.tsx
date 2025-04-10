@@ -12,7 +12,8 @@ export function LoginForm({
   async function handleFormAction(formData: FormData) {
     "use server";
     formData.append("redirectTo", "/dashboard");
-    await signIn("credentials", formData);
+    // await signIn("credentials", formData);
+    await signIn("cognito", formData);
   }
 
   return (
