@@ -9,25 +9,24 @@ console.log("🚀 ~ ClientId:", ClientId)
 
 const userPool = new CognitoUserPool({ UserPoolId, ClientId });
 
-
-const attributeList: CognitoUserAttribute[] = [];
-
-const attributeEmail = new CognitoUserAttribute({
-    Name: "email",
-    Value: "winzawoo.dev@gmail.com",
-})
-
-attributeList.push(attributeEmail);
-
-const attributePhoneNumber = new CognitoUserAttribute({
-    Name: "phone_number",
-    Value: "+959123456789",
-})
-
-attributeList.push(attributePhoneNumber);
-
-
 export function signUp(username: string, password: string) {
+
+    const attributeList: CognitoUserAttribute[] = [];
+
+    const attributeEmail = new CognitoUserAttribute({
+        Name: "email",
+        Value: "winzawoo.dev@gmail.com",
+    })
+
+    attributeList.push(attributeEmail);
+
+    const attributePhoneNumber = new CognitoUserAttribute({
+        Name: "phone_number",
+        Value: "+959123456789",
+    })
+
+    attributeList.push(attributePhoneNumber);
+
     userPool.signUp(
         username,
         password,
