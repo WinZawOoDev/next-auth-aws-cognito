@@ -1,4 +1,4 @@
-import { CognitoUser, CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
+import { CognitoUser, CognitoUserAttribute, CognitoUserPool, AuthenticationDetails } from 'amazon-cognito-identity-js';
 
 
 const UserPoolId = process.env.AWS_COGNITO_USER_POOL_ID || '';
@@ -66,5 +66,24 @@ export function resendConfirmationCode(email: string) {
         console.log("🚀 ~ resendConfirmationCode ~ result:", result);
     }
     );
+}
+
+
+export function signIn(email: string, password: string) {
+    const user = cognitoUser(email);
+
+    const authenticationDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+    });
+
+    user.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+            console.log("🚀 ~ signIn ~ result:", result);
+        },
+        onFailure: (err) => {
+            console.log("🚀 ~ signIn ~ err:", err);
+        }
+    });
 }
 
