@@ -1,10 +1,10 @@
+import RegisterForm from "@/components/register-form";
 import AlginedCenterContainer from "@/components/aligned-center-container";
-import { LoginForm } from "@/components/login-form";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <AlginedCenterContainer>
-      <LoginForm />
+      <RegisterForm />
     </AlginedCenterContainer>
   );
 }
