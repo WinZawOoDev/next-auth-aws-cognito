@@ -3,20 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/auth";
 import Link from "next/link";
+import { signIn } from "@/auth";
+
+async function handleFormAction(formData: FormData) {
+  "use server";
+  formData.append("redirectTo", "/dashboard");
+
+  await signIn("credentials", formData);
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  async function handleFormAction(formData: FormData) {
-    "use server";
-    formData.append("redirectTo", "/dashboard");
-    // await signIn("credentials", formData);
-    await signIn("cognito", formData);
-  }
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">

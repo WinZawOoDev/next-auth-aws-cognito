@@ -4,6 +4,7 @@ import Cognito from "next-auth/providers/cognito";
 import { signInSchema } from "./lib/zod";
 import { ZodError } from "zod";
 import { nanoid } from "nanoid";
+import { signIn as cognitoSignIn } from '@/lib/cognito-auth-provider'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -26,9 +27,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             credentials
           );
 
+          cognitoSignIn({
+            email, password,
+            onSuccess(session) {
+              const accessToken = session.getAccessToken();
+              const idToken = session.getIdToken();
+              const refreshToken = session.getRefreshToken();
+              refreshToken.getToken();
+              console.log("🚀 ~ authorize ~ session:", session);
+            },
+            onFailure(err) {
+              console.error("🚀 ~ authorize ~ err:", err);
+              throw new Error("Invalid credentials");
+            },
+          });
+
           user = { id: nanoid(), email, password }; // Added 'id' field to match the User type
 
-          console.log("🚀 ~ authorize ~ user:", user);
           if (!user) {
             throw new Error("Invalid credentials");
           }

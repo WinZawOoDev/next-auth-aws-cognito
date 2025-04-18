@@ -1,4 +1,6 @@
 import { CognitoUser, CognitoUserAttribute, CognitoUserPool, AuthenticationDetails, ISignUpResult, CognitoUserSession, IAuthenticationCallback } from 'amazon-cognito-identity-js';
+import * as AWS from '@aws-sdk/client-cognito-identity-provider';
+
 
 type SignUpCredential = {
     email: string;
@@ -15,9 +17,7 @@ type ForgotPassword = Pick<SignUpCredential, 'email'> & { onSuccess: (data: any)
 type ConfirmForgotPassword = Pick<SignUpCredential, 'email'> & { otpCode: string; newPassword: string; onSuccess: (success: string) => void; onFailure: (error: Error) => void; }
 
 const UserPoolId = process.env.AWS_COGNITO_USER_POOL_ID || '';
-console.log("🚀 ~ UserPoolId:", UserPoolId)
 const ClientId = process.env.AWS_COGNITO_USER_POOL_CLIENT_ID || '';
-console.log("🚀 ~ ClientId:", ClientId)
 
 
 const userPool = new CognitoUserPool({ UserPoolId, ClientId });
