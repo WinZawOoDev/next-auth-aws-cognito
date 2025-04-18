@@ -6,6 +6,11 @@ import { ZodError } from "zod";
 import { nanoid } from "nanoid";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  pages: {
+    newUser: '/register',
+    signIn: '/login',
+    signOut: '/logout',
+  },
   providers: [
     Cognito,
     Credentials({

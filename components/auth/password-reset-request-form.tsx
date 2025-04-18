@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { forgotPassword } from "@/lib/cognito-auth-provider";
 
 // Define email validation schema
 const emailSchema = z.object({
@@ -29,7 +30,18 @@ async function requestPasswordReset(formData: FormData) {
   // Validate email format
   const result = emailSchema.safeParse({ email });
 
-  redirect("/reset-password/verify");
+  forgotPassword({
+    email,
+    onSuccess(data) {
+      console.log("🚀 ~ onSuccess ~ data:", data);
+    },
+    inputVerificationCode(data) {
+      console.log("🚀 ~ inputVerificationCode ~ data:", data);
+    },
+    onFailure(error) {},
+  });
+
+  redirect(`/reset-password/verify?${new URLSearchParams({ email })}`);
 }
 
 export default function PasswordResetRequestForm() {

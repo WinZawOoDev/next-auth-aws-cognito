@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { revalidatePath } from "next/cache";
+import { confirmForgotPassword } from "@/lib/cognito-auth-provider";
 
 // Define password validation schema
 const passwordSchema = z
@@ -36,12 +37,12 @@ const passwordSchema = z
 // Server action to reset password
 async function resetPassword(formData: FormData) {
   "use server";
-
+  console.log("🚀 ~ resetPassword ~ formData:", formData);
   // Get form data
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
   const email = formData.get("email") as string;
-  const token = formData.get("token") as string;
+  const otpCode = formData.get("otpCode") as string;
 
   // Validate password format
   const result = passwordSchema.safeParse({ password, confirmPassword });
@@ -53,17 +54,32 @@ async function resetPassword(formData: FormData) {
   //       message: Object.values(errors)[0]?.[0] || "Invalid password format.",
   //     };
   //   }
+
+  confirmForgotPassword({
+    email,
+    otpCode,
+    newPassword: password,
+    onSuccess(data) {
+      console.log("🚀 ~ onSuccess ~ data:", data);
+    },
+    onFailure(error) {
+      console.error("Error resetting password:", error);
+    },
+  });
+
   revalidatePath("/login");
   permanentRedirect("/login");
 }
 
 export default function NewPasswordForm({
   email,
-  token,
+  otpCode,
 }: {
   email: string;
-  token: string;
+  otpCode: string;
 }) {
+  console.log("🚀 ~ otpCode:", otpCode);
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -74,7 +90,7 @@ export default function NewPasswordForm({
         <form action={resetPassword} className="space-y-6">
           {/* Hidden fields to pass email and token */}
           <input type="hidden" name="email" value={email} />
-          <input type="hidden" name="token" value={token} />
+          <input type="hidden" name="otpCode" value={otpCode} />
 
           <div className="space-y-2">
             <Label htmlFor="password">New Password</Label>

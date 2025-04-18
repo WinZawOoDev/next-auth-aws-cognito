@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { signUp } from "@/lib/cognito-auth-provider";
 
 // Define the form schema with validation rules
 const formSchema = z
@@ -34,35 +35,38 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
+// Server action to handle form submission
+async function registerUser(formData: FormData) {
+  "use server";
+
+  // Extract form data
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  // Validate form data
+  const result = formSchema.safeParse({
+    name,
+    email,
+    password,
+    confirmPassword,
+  });
+
+  // // If validation fails, return errors
+  // if (!result.success) {
+  //   // Convert Zod errors to a more usable format
+  //   const errors = result.error.flatten().fieldErrors;
+  //   return { success: false, errors };
+  // }
+
+  const registered = await signUp({ email, password });
+  console.log("🚀 ~ registerUser ~ registered:", registered);
+
+  redirect(`/register/verify?${new URLSearchParams({ email })}`);
+}
+
 export default function RegisterForm() {
-  // Server action to handle form submission
-  async function registerUser(formData: FormData) {
-    "use server";
-
-    // Extract form data
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirmPassword") as string;
-
-    // Validate form data
-    const result = formSchema.safeParse({
-      name,
-      email,
-      password,
-      confirmPassword,
-    });
-
-    // // If validation fails, return errors
-    // if (!result.success) {
-    //   // Convert Zod errors to a more usable format
-    //   const errors = result.error.flatten().fieldErrors;
-    //   return { success: false, errors };
-    // }
-
-    redirect("/register/verify");
-  }
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>

@@ -1,6 +1,5 @@
 import { CognitoUser, CognitoUserAttribute, CognitoUserPool, AuthenticationDetails, ISignUpResult, CognitoUserSession, IAuthenticationCallback } from 'amazon-cognito-identity-js';
 
-
 type SignUpCredential = {
     email: string;
     phoneNumber?: string
