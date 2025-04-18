@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 // Define the form schema with validation rules
 const formSchema = z
@@ -57,6 +59,8 @@ export default function RegisterForm() {
     //   const errors = result.error.flatten().fieldErrors;
     //   return { success: false, errors };
     // }
+
+    redirect("/register/verify");
   }
 
   return (
@@ -111,12 +115,12 @@ export default function RegisterForm() {
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a
+          <Link
             href="/login"
             className="text-primary underline-offset-4 hover:underline"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </CardFooter>
     </Card>

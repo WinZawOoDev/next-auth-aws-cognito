@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { redirect } from "next/navigation";
+import { permanentRedirect, redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { revalidatePath } from "next/cache";
 
 // Define password validation schema
 const passwordSchema = z
@@ -52,6 +53,8 @@ async function resetPassword(formData: FormData) {
   //       message: Object.values(errors)[0]?.[0] || "Invalid password format.",
   //     };
   //   }
+  revalidatePath("/login");
+  permanentRedirect("/login");
 }
 
 export default function NewPasswordForm({

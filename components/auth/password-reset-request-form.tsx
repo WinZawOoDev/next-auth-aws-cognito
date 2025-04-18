@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 // Define email validation schema
 const emailSchema = z.object({
@@ -27,6 +28,8 @@ async function requestPasswordReset(formData: FormData) {
 
   // Validate email format
   const result = emailSchema.safeParse({ email });
+
+  redirect("/reset-password/verify");
 }
 
 export default function PasswordResetRequestForm() {
@@ -60,12 +63,12 @@ export default function PasswordResetRequestForm() {
       <CardFooter className="flex justify-center">
         <div className="text-sm text-center">
           Remember your password?{" "}
-          <a
+          <Link
             href="/login"
             className="text-primary underline-offset-4 hover:underline"
           >
             Back to login
-          </a>
+          </Link>
         </div>
       </CardFooter>
     </Card>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+type Props = {
+  title: string;
+  redirectPath: string;
+};
 
 // Define OTP validation schema
 const otpSchema = z.object({
@@ -36,6 +41,10 @@ async function verifyOTP(formData: FormData) {
   //       message: "Invalid OTP format. Please enter 6 digits.",
   //     }
   //   }
+
+  const redirectTo = formData.get("redirectTo") as string;
+  revalidatePath(redirectTo);
+  permanentRedirect(redirectTo);
 }
 
 // Server action to resend OTP
@@ -46,11 +55,12 @@ async function resendOTP() {
   // This is a placeholder for the actual resend logic
 }
 
-export default function OTPVerificationForm() {
+export default function OTPVerificationForm({ title, redirectPath }: Props) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl">Verify Your Account</CardTitle>
+        {/* <CardTitle className="text-2xl">Verify Your Account</CardTitle> */}
+        <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>
           Enter the 6-digit verification code sent to your email or phone
         </CardDescription>
@@ -113,7 +123,7 @@ export default function OTPVerificationForm() {
             {/* Hidden input to collect all digits for submission */}
             <input type="hidden" name="otp" id="otp" />
           </div>
-
+          <input type="hidden" name="redirectTo" value={redirectPath} />
           <Button type="submit" className="w-full">
             Verify
           </Button>

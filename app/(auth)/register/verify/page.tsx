@@ -5,7 +5,10 @@ import OTPVerificationForm from "@/components/auth/otp-verification-form";
 export default function VerifyPage() {
   return (
     <AlignedCenterContainer>
-      <OTPVerificationForm />
+      <OTPVerificationForm
+        title="Verify Your Account"
+        redirectPath="/dashboard"
+      />
     </AlignedCenterContainer>
   );
 }
