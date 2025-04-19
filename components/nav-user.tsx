@@ -3,7 +3,6 @@
 import {
   IconCreditCard,
   IconDotsVertical,
-  IconLogout,
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
@@ -24,7 +23,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import { logOut } from "@/lib/auth-server-actions";
+import LogOutForm from "./auth/logout-form";
 
 export function NavUser({
   user,
@@ -96,10 +96,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/login" className="flex items-center gap-2">
-                <IconLogout />
-                Log out
-              </Link>
+              <LogOutForm formAction={logOut} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

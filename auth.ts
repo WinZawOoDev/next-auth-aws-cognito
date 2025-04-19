@@ -33,8 +33,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               const accessToken = session.getAccessToken();
               const idToken = session.getIdToken();
               const refreshToken = session.getRefreshToken();
-              refreshToken.getToken();
-              console.log("🚀 ~ authorize ~ session:", session);
+              const jwtAccessToken = accessToken.getJwtToken();
+              console.log("🚀 ~ onSuccess ~ jwtAccessToken:", jwtAccessToken)
+              const jwtAccessTokenPayload = accessToken.decodePayload();
+              console.log("🚀 ~ onSuccess ~ jwtAccessTokenPayload:", jwtAccessTokenPayload);
             },
             onFailure(err) {
               console.error("🚀 ~ authorize ~ err:", err);
