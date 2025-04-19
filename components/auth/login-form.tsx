@@ -8,7 +8,7 @@ import { signIn } from "@/auth";
 
 async function handleFormAction(formData: FormData) {
   "use server";
-  formData.append("redirectTo", "/dashboard");
+  formData.append("redirectTo", "/");
 
   await signIn("credentials", formData);
 }

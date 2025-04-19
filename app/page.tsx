@@ -1,41 +1,41 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { DataTable } from "@/components/data-table";
+import { SectionCards } from "@/components/section-cards";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+import data from "./data.json";
 import { auth } from "@/auth";
-import { permanentRedirect } from "next/navigation";
 
-async function handleFormAction(formData: FormData) {
-  "use server";
-  console.log("🚀 ~ handleFormAction ~ formData:", formData);
-  const email = formData.get("email");
-  console.log("🚀 ~ handleFormAction ~ email:", email);
-}
-
-export default async function Home() {
-  const session = await auth();
-
-  if (!session) {
-    return permanentRedirect("/login");
-  }
+export default async function Page() {
+  const sessions = await auth();
+  // console.log("🚀 ~ Page ~ sessions:", sessions);
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1 className="text-9xl text-rose-700 font-extrabold font-mono font-stretch-extra-expanded">
-          Welcome
-        </h1>
-        <form action={handleFormAction}>
-          <input
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            className="px-5 py-2 border-2 border-gray-400 rounded-md placeholder:text-gray-300 placeholder:font-light"
-          />
-          <button
-            type="submit"
-            className="bg-rose-800 rounded-md py-2.5 px-4 text-white font-semibold mx-0.5 cursor-pointer"
-          >
-            Submit
-          </button>
-        </form>
-      </main>
-    </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <SectionCards />
+              <div className="px-4 lg:px-6">
+                <ChartAreaInteractive />
+              </div>
+              <DataTable data={data} />
+            </div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
