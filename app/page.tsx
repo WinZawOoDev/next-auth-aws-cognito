@@ -1,9 +1,18 @@
-export default function Home() {
-  async function handleFormAction(formData: FormData) {
-    "use server";
-    console.log("🚀 ~ handleFormAction ~ formData:", formData);
-    const email = formData.get("email");
-    console.log("🚀 ~ handleFormAction ~ email:", email);
+import { auth } from "@/auth";
+import { permanentRedirect } from "next/navigation";
+
+async function handleFormAction(formData: FormData) {
+  "use server";
+  console.log("🚀 ~ handleFormAction ~ formData:", formData);
+  const email = formData.get("email");
+  console.log("🚀 ~ handleFormAction ~ email:", email);
+}
+
+export default async function Home() {
+  const session = await auth();
+
+  if (!session) {
+    return permanentRedirect("/login");
   }
 
   return (

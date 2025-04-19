@@ -1,6 +1,5 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Cognito from "next-auth/providers/cognito";
 import { signIn as cognitoSignIn } from '@/lib/cognito-auth-provider'
 
 interface CognitoTokens {
@@ -36,7 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signOut: '/logout',
   },
   providers: [
-    Cognito,
     Credentials({
       type: "credentials",
       credentials: {
@@ -80,6 +78,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async authorized({ auth }) {
+      return !!auth;
+    },
     jwt({ token, user }) {
       return { ...token, ...user };
     },
