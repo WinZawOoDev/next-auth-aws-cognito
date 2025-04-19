@@ -41,7 +41,7 @@ export function LoginForm({
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="paassword">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Link
                     href="/reset-password"
                     className="ml-auto text-sm underline-offset-2 hover:underline"

@@ -97,7 +97,7 @@ export function resendConfirmationCode(email: string) {
 }
 
 
-export function signIn({ email, password, onSuccess, onFailure }: SignIn) {
+export function signIn({ email, password }: Omit<SignUpCredential, 'phoneNumber'>): Promise<CognitoUserSession | undefined> {
     const user = cognitoUser(email);
 
     const authenticationDetails = new AuthenticationDetails({
@@ -105,7 +105,17 @@ export function signIn({ email, password, onSuccess, onFailure }: SignIn) {
         Password: password,
     });
 
-    user.authenticateUser(authenticationDetails, { onSuccess, onFailure });
+    return new Promise((resolve, reject) => {
+        user.authenticateUser(authenticationDetails, {
+            onSuccess(session) {
+                resolve(session);
+            },
+            onFailure(err) {
+                reject(err);
+            },
+        });
+    })
+
 }
 
 
