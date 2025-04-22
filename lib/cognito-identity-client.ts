@@ -33,6 +33,59 @@ const client = new AWS.CognitoIdentityProviderClient({
 
 
 
+type IdTokenPayload = {
+    at_hash: string;
+    sub: string;
+    'cognito:groups': string[];
+    email_verified: boolean;
+    iss: string;
+    'cognito:username': string;
+    origin_jti: string;
+    aud: string;
+    identities: Record<string, unknown>[];
+    token_use: string;
+    auth_time: number;
+    exp: number;
+    iat: number;
+    jti: string;
+    email: string;
+};
+
+const id_token_payload: IdTokenPayload = {
+    at_hash: 'tmLI2kEMmhE4eYSrShNkJA',
+    sub: 'd90ad59c-b0f1-7091-2e7b-a4a2933766a0',
+    'cognito:groups': ['ap-southeast-1_INU5JuKcK_Google'],
+    email_verified: false,
+    iss: 'https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_INU5JuKcK',
+    'cognito:username': 'google_114497109083229442402',
+    origin_jti: 'f85969e4-5b4b-4bd7-bd63-a6aadc3dc13a',
+    aud: '227s687b9mn597161u0h3ie13v',
+    identities: [{}],
+    token_use: 'id',
+    auth_time: 1745315750,
+    exp: 1745319350,
+    iat: 1745315750,
+    jti: '5a55d5ff-896b-4e60-af8c-2f781e683e17',
+    email: 'winzaw.oo@kbzbank.com',
+};
+
+const access_token_payload = {
+    sub: 'd90ad59c-b0f1-7091-2e7b-a4a2933766a0',
+    'cognito:groups': ['ap-southeast-1_INU5JuKcK_Google'],
+    iss: 'https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_INU5JuKcK',
+    version: 2,
+    client_id: '227s687b9mn597161u0h3ie13v',
+    origin_jti: 'f85969e4-5b4b-4bd7-bd63-a6aadc3dc13a',
+    token_use: 'access',
+    scope: 'openid profile email',
+    auth_time: 1745315750,
+    exp: 1745319350,
+    iat: 1745315750,
+    jti: 'e62b4ccf-aa22-45b9-b249-bbdcf04d7e37',
+    username: 'google_114497109083229442402'
+};
+
+
 export async function signUp({
     email,
     phoneNumber,
