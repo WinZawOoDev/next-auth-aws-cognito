@@ -16,7 +16,7 @@ function handleSocialLogin() {
   const oAuthURL = new URL(`${cognitoDomain}/oauth2/authorize`);
   oAuthURL.searchParams.append("identity_provider", "Google"); // The name of the identity provider configured in Cognito
   oAuthURL.searchParams.append("client_id", clientId);
-  oAuthURL.searchParams.append("response_type", "token");
+  oAuthURL.searchParams.append("response_type", "code");
   oAuthURL.searchParams.append("redirect_uri", redirectUri);
   oAuthURL.searchParams.append("scope", "openid profile email"); // Adjust scopes as needed
 

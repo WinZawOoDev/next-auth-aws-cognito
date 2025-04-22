@@ -22,15 +22,8 @@ export default async function OAuthSignIn({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const params = (await searchParams);
+  const params = (await searchParams) as { code: string };
   console.log("🚀 ~ params:", params);
-
-
-  const headersList = headers();
-  const host =  (await headersList).get("host")
-  console.log("🚀 ~ host:", host)
-
-  
 
   // await signUp({email: 'winzawoo.dev@gmail.com', password: '12@#Wa909AZn$'});
 
@@ -48,7 +41,7 @@ export default async function OAuthSignIn({
   //   onFailure(error) {},
   //   onSuccess(success) {},
   // });
-  // await getOAuth2Token(params.code);
+  await getOAuth2Token(params.code);
 
   const data = await getData();
 
