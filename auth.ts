@@ -59,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
 
         const cognitoSession = await cognitoSignIn({ email, password });
-        // console.log("🚀 ~ authorize ~ cognitoSession:", cognitoSession);
+        console.log("🚀 ~ authorize ~ cognitoSession:", cognitoSession);
 
         const accessToken = cognitoSession?.getAccessToken();
         const idToken = cognitoSession?.getIdToken();

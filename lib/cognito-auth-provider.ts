@@ -1,23 +1,21 @@
 import { CognitoUser, CognitoUserAttribute, CognitoUserPool, AuthenticationDetails, ISignUpResult, CognitoUserSession, IAuthenticationCallback } from 'amazon-cognito-identity-js';
-import * as AWS from '@aws-sdk/client-cognito-identity-provider';
 
-
-type SignUpCredential = {
+export type SignUpCredential = {
     email: string;
     phoneNumber?: string
     password: string;
 }
 
-type ConfirmRegisteration = Pick<SignUpCredential, 'email'> & { otpCode: string };
+export type ConfirmRegisteration = Pick<SignUpCredential, 'email'> & { otpCode: string };
 
 type SignIn = Omit<SignUpCredential, 'phoneNumber'> & IAuthenticationCallback
 
 type ForgotPassword = Pick<SignUpCredential, 'email'> & { onSuccess: (data: any) => void; onFailure: (error: Error) => void; inputVerificationCode: (data: any) => void; }
 
-type ConfirmForgotPassword = Pick<SignUpCredential, 'email'> & { otpCode: string; newPassword: string; onSuccess: (success: string) => void; onFailure: (error: Error) => void; }
+export type ConfirmForgotPassword = Pick<SignUpCredential, 'email'> & { otpCode: string; newPassword: string; onSuccess: (success: string) => void; onFailure: (error: Error) => void; }
 
 const UserPoolId = process.env.AWS_COGNITO_USER_POOL_ID || '';
-const ClientId = process.env.AWS_COGNITO_USER_POOL_CLIENT_ID || '';
+const ClientId = process.env.AWS_COGNITO_CLIENT_ID || '';
 
 
 const userPool = new CognitoUserPool({ UserPoolId, ClientId });
@@ -105,6 +103,8 @@ export function signIn({ email, password }: Omit<SignUpCredential, 'phoneNumber'
         Password: password,
     });
 
+    user.authenticateUser
+
     return new Promise((resolve, reject) => {
         user.authenticateUser(authenticationDetails, {
             onSuccess(session) {
@@ -119,6 +119,46 @@ export function signIn({ email, password }: Omit<SignUpCredential, 'phoneNumber'
 }
 
 
+export async function getOAuth2Token(code: string) {
+
+    const cognitoDomain = process.env.AWS_COGNITO_DOMAIN;
+    const clientId = process.env.AUTH_COGNITO_ID;
+    const clientSecret = process.env.AWS_COGNITO_GOOGLE_IDP_CLIENT_SECRET || '';
+    if (!clientSecret) {
+        throw new Error("Missing AWS_COGNITO_GOOGLE_IDP_CLIENT_SECRET environment variable");
+    }
+
+    if (!cognitoDomain || !clientId) {
+        throw new Error(
+            "Missing required environment variables for OAuth authorize URL"
+        );
+    }
+
+
+
+    const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+    };
+    console.log("🚀 ~ getOAuth2Token ~ headers:", headers)
+
+    const body = new URLSearchParams({
+        redirect_uri: 'http://localhost:3000/login',
+        client_id: clientId as string,
+        code,
+    });
+    console.log("🚀 ~ getOAuth2Token ~ body:", body)
+
+    const res = await fetch(`${cognitoDomain}/oauth2/token`, {
+        method: 'POST',
+        headers,
+        body
+    });
+
+    console.log("🚀 ~ getOAuth2Token ~ res:", res)
+
+}
+
 export function forgotPassword({ email, onSuccess, onFailure, inputVerificationCode }: ForgotPassword) {
     const user = cognitoUser(email);
     user.forgotPassword({ onSuccess, onFailure, inputVerificationCode })
@@ -128,4 +168,12 @@ export function forgotPassword({ email, onSuccess, onFailure, inputVerificationC
 export function confirmForgotPassword({ email, otpCode, newPassword, onSuccess, onFailure }: ConfirmForgotPassword) {
     const user = cognitoUser(email);
     user.confirmPassword(otpCode, newPassword, { onSuccess, onFailure });
+}
+
+
+export function signOut() {
+    const user = userPool.getCurrentUser();
+    if (user) {
+        user.signOut();
+    }
 }
