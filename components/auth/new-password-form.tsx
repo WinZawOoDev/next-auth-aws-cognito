@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { revalidatePath } from "next/cache";
-import { confirmForgotPassword } from "@/lib/cognito-auth-provider";
+import { confirmForgotPassword } from "@/lib/cognito-identity-client";
 
 // Define password validation schema
 const passwordSchema = z
@@ -55,16 +55,10 @@ async function resetPassword(formData: FormData) {
   //     };
   //   }
 
-  confirmForgotPassword({
+  const confirmed = await confirmForgotPassword({
     email,
     otpCode,
     newPassword: password,
-    onSuccess(data) {
-      console.log("🚀 ~ onSuccess ~ data:", data);
-    },
-    onFailure(error) {
-      console.error("Error resetting password:", error);
-    },
   });
 
   revalidatePath("/login");

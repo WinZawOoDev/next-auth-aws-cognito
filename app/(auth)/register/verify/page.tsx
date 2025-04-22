@@ -4,8 +4,8 @@ import OTPVerificationForm from "@/components/auth/otp-verification-form";
 import { SearchParams } from "next/dist/server/request/search-params";
 import { revalidatePath } from "next/cache";
 import { permanentRedirect } from "next/navigation";
-import { confirmRegistration } from "@/lib/cognito-auth-provider";
 import { z } from "zod";
+import { confirmSignUp } from "@/lib/cognito-identity-client";
 
 // Define OTP validation schema
 const otpSchema = z.object({
@@ -37,7 +37,7 @@ async function verifyOTP(formData: FormData) {
   //     }
   //   }
 
-  const verified = await confirmRegistration({ otpCode, email });
+  const verified = await confirmSignUp({ otpCode, email });
 
   const redirectTo = `/dashboard`;
   revalidatePath(redirectTo);

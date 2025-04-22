@@ -1,6 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { signIn as cognitoSignIn } from '@/lib/cognito-auth-provider'
+import { initiateAuth } from "./lib/cognito-identity-client";
 
 interface CognitoTokens {
   accessToken: string;
@@ -58,22 +59,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           password: string;
         };
 
-        const cognitoSession = await cognitoSignIn({ email, password });
-        console.log("🚀 ~ authorize ~ cognitoSession:", cognitoSession);
+        const initiatedAuth = await initiateAuth({ email, password });
+        console.log("🚀 ~ authorize ~ initiatedAuth:", initiatedAuth)
 
-        const accessToken = cognitoSession?.getAccessToken();
-        const idToken = cognitoSession?.getIdToken();
-        const refreshToken = cognitoSession?.getRefreshToken();
+        authSession.id = initiatedAuth?.AccessTokenPayload.sub;
+        // authSession.name = initiatedAuth?.AccessTokenPayload;
+        // authSession.email = initiatedAuth?.AuthenticationResult.;
+        authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
+        authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
+        authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
 
-        authSession.id = accessToken?.payload.sub;
-        authSession.name = accessToken?.payload?.username;
-        authSession.email = idToken?.payload.email;
 
-        authSession.accessToken = accessToken?.getJwtToken();
-        authSession.idToken = idToken?.getJwtToken();
-        authSession.refreshToken = refreshToken?.getToken();
+        // const cognitoSession = await cognitoSignIn({ email, password });
+        // console.log("🚀 ~ authorize ~ cognitoSession:", cognitoSession);
 
-        return { ...authSession, ...accessToken?.payload };
+        // const accessToken = cognitoSession?.getAccessToken();
+        // const idToken = cognitoSession?.getIdToken();
+        // const refreshToken = cognitoSession?.getRefreshToken();
+
+        // authSession.id = accessToken?.payload.sub;
+        // authSession.name = accessToken?.payload?.username;
+        // authSession.email = idToken?.payload.email;
+
+        // authSession.accessToken = accessToken?.getJwtToken();
+        // authSession.idToken = idToken?.getJwtToken();
+        // authSession.refreshToken = refreshToken?.getToken();
+
+        return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
       },
     }),
   ],

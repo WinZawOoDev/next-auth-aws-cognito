@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signUp } from "@/lib/cognito-auth-provider";
+import { signUp } from "@/lib/cognito-identity-client";
 
 // Define the form schema with validation rules
 const formSchema = z

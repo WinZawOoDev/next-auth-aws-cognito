@@ -3,9 +3,7 @@ import {
     type InitiateAuthResponse,
     type SignUpResponse,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { auth } from "@/auth";
-import { createHmac } from "crypto";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import {
     ConfirmForgotPassword,
@@ -30,12 +28,10 @@ const client = new AWS.CognitoIdentityProviderClient({
         accessKeyId: ACCESS_KEY_ID,
         secretAccessKey: SECRET_ACCESS_KEY,
     },
-    requestHandler: new NodeHttpHandler({
-        connectionTimeout: 10000,
-        socketTimeout: 10000,
-    }),
     maxAttempts: 3,
 });
+
+
 
 export async function signUp({
     email,
@@ -43,9 +39,10 @@ export async function signUp({
     password,
 }: SignUpCredential): Promise<SignUpResponse | undefined> {
     try {
+
         const command = new AWS.SignUpCommand({
             ClientId: CLIENT_ID,
-            SecretHash: generateSecretHash(email),
+            SecretHash: await generateSecretHash(email),
             Username: email,
             Password: password,
             UserAttributes: [
@@ -67,7 +64,7 @@ export async function confirmSignUp({ email, otpCode }: ConfirmRegisteration) {
             ClientId: CLIENT_ID,
             Username: email,
             ConfirmationCode: otpCode,
-            SecretHash: generateSecretHash(email),
+            SecretHash: await generateSecretHash(email),
         });
         const response = await client.send(command);
         console.log("🚀 ~ confirmSignUp ~ response:", response);
@@ -82,7 +79,7 @@ export async function resendConfirmationCode(email: string) {
         const command = new AWS.ResendConfirmationCodeCommand({
             ClientId: CLIENT_ID,
             Username: email,
-            SecretHash: generateSecretHash(email),
+            SecretHash: await generateSecretHash(email),
         });
         const response = await client.send(command);
         console.log("🚀 ~ resendConfirmationCode ~ response:", response);
@@ -111,7 +108,7 @@ export async function initiateAuth({
             AuthParameters: {
                 USERNAME: email,
                 PASSWORD: password,
-                SECRET_HASH: generateSecretHash(email),
+                SECRET_HASH: await generateSecretHash(email),
             },
         });
         const response = (await client.send(command)) as InitiateAuthResponse;
@@ -165,12 +162,14 @@ export async function getOAuth2Token(code: string): Promise<OAuth2TokenResponse 
 
 }
 
+
+
 export async function forgotPassword(email: string) {
     try {
         const command = new AWS.ForgotPasswordCommand({
             ClientId: CLIENT_ID,
             Username: email,
-            SecretHash: generateSecretHash(email),
+            SecretHash: await generateSecretHash(email),
         });
         const response = await client.send(command);
         console.log("🚀 ~ forgotPassword ~ response:", response);
@@ -183,14 +182,14 @@ export async function confirmForgotPassword({
     email,
     otpCode,
     newPassword,
-}: ConfirmForgotPassword) {
+}: Pick<ConfirmForgotPassword, 'email' | 'otpCode' | 'newPassword'>) {
     try {
         const command = new AWS.ConfirmForgotPasswordCommand({
             ClientId: CLIENT_ID,
             ConfirmationCode: otpCode,
             Username: email,
             Password: newPassword,
-            SecretHash: generateSecretHash(email),
+            SecretHash: await generateSecretHash(email),
         });
         const response = await client.send(command);
         console.log("🚀 ~ confirmForgotPassword ~ response:", response);
@@ -238,10 +237,18 @@ export async function signOut(token: string) {
     }
 }
 
-function generateSecretHash(username: string) {
-    const hasher = createHmac("sha256", CLIENT_SECRET!);
-    hasher.update(`${username}${CLIENT_ID}`);
-    const secretHash = hasher.digest("base64");
+async function generateSecretHash(username: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(CLIENT_SECRET);
+    const key = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
 
-    return secretHash;
+    const data = encoder.encode(`${username}${CLIENT_ID}`);
+    const signature = await crypto.subtle.sign("HMAC", key, data);
+    return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
