@@ -1,16 +1,16 @@
 import * as AWS from "@aws-sdk/client-cognito-identity-provider";
 import {
-  type InitiateAuthResponse,
-  type SignUpResponse,
+    type InitiateAuthResponse,
+    type SignUpResponse,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { auth } from "@/auth";
 import { createHmac } from "crypto";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import {
-  ConfirmForgotPassword,
-  ConfirmRegisteration,
-  SignUpCredential,
+    ConfirmForgotPassword,
+    ConfirmRegisteration,
+    SignUpCredential,
 } from "./cognito-auth-provider";
 
 const REGION = process.env.AWS_COGNITO_REGION!;
@@ -25,214 +25,223 @@ const DOMAIN = process.env.AWS_COGNITO_DOMAIN;
 const OAUTH_REDIRECT_URL = process.env.OAUTH_REDIRECT_URI;
 
 const client = new AWS.CognitoIdentityProviderClient({
-  region: REGION,
-  credentials: {
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
-  requestHandler: new NodeHttpHandler({
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
-  }),
-  maxAttempts: 3,
+    region: REGION,
+    credentials: {
+        accessKeyId: ACCESS_KEY_ID,
+        secretAccessKey: SECRET_ACCESS_KEY,
+    },
+    requestHandler: new NodeHttpHandler({
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
+    }),
+    maxAttempts: 3,
 });
 
 export async function signUp({
-  email,
-  phoneNumber,
-  password,
+    email,
+    phoneNumber,
+    password,
 }: SignUpCredential): Promise<SignUpResponse | undefined> {
-  try {
-    const command = new AWS.SignUpCommand({
-      ClientId: CLIENT_ID,
-      SecretHash: generateSecretHash(email),
-      Username: email,
-      Password: password,
-      UserAttributes: [
-        { Name: "email", Value: email },
-        ...(phoneNumber ? [{ Name: "phone_number", Value: phoneNumber }] : []),
-      ],
-    });
-    const response = (await client.send(command)) as SignUpResponse;
-    console.log("🚀 ~ signUp ~ response:", response);
-    return response;
-  } catch (error) {
-    console.error("🚀 ~ signUp ~ error:", error);
-  }
+    try {
+        const command = new AWS.SignUpCommand({
+            ClientId: CLIENT_ID,
+            SecretHash: generateSecretHash(email),
+            Username: email,
+            Password: password,
+            UserAttributes: [
+                { Name: "email", Value: email },
+                ...(phoneNumber ? [{ Name: "phone_number", Value: phoneNumber }] : []),
+            ],
+        });
+        const response = (await client.send(command)) as SignUpResponse;
+        console.log("🚀 ~ signUp ~ response:", response);
+        return response;
+    } catch (error) {
+        console.error("🚀 ~ signUp ~ error:", error);
+    }
 }
 
 export async function confirmSignUp({ email, otpCode }: ConfirmRegisteration) {
-  try {
-    const command = new AWS.ConfirmSignUpCommand({
-      ClientId: CLIENT_ID,
-      Username: email,
-      ConfirmationCode: otpCode,
-      SecretHash: generateSecretHash(email),
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ confirmSignUp ~ response:", response);
-    return response;
-  } catch (error) {
-    console.log("🚀 ~ confirmSignUp ~ error:", error);
-  }
+    try {
+        const command = new AWS.ConfirmSignUpCommand({
+            ClientId: CLIENT_ID,
+            Username: email,
+            ConfirmationCode: otpCode,
+            SecretHash: generateSecretHash(email),
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ confirmSignUp ~ response:", response);
+        return response;
+    } catch (error) {
+        console.log("🚀 ~ confirmSignUp ~ error:", error);
+    }
 }
 
 export async function resendConfirmationCode(email: string) {
-  try {
-    const command = new AWS.ResendConfirmationCodeCommand({
-      ClientId: CLIENT_ID,
-      Username: email,
-      SecretHash: generateSecretHash(email),
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ resendConfirmationCode ~ response:", response);
-  } catch (error) {
-    console.log("🚀 ~ resendConfirmationCode ~ error:", error);
-  }
+    try {
+        const command = new AWS.ResendConfirmationCodeCommand({
+            ClientId: CLIENT_ID,
+            Username: email,
+            SecretHash: generateSecretHash(email),
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ resendConfirmationCode ~ response:", response);
+    } catch (error) {
+        console.log("🚀 ~ resendConfirmationCode ~ error:", error);
+    }
 }
 
 export async function initiateAuth({
-  email,
-  password,
+    email,
+    password,
 }: {
-  email: string;
-  password: string;
+    email: string;
+    password: string;
 }): Promise<
-  | (Pick<InitiateAuthResponse, "AuthenticationResult"> & {
-      AccessTokenPayload: JwtPayload;
-      IdTokenPayload: JwtPayload;
+    | (Pick<InitiateAuthResponse, "AuthenticationResult"> & {
+        AccessTokenPayload: JwtPayload;
+        IdTokenPayload: JwtPayload;
     })
-  | undefined
+    | undefined
 > {
-  try {
-    const command = new AWS.InitiateAuthCommand({
-      AuthFlow: "USER_PASSWORD_AUTH",
-      ClientId: CLIENT_ID,
-      AuthParameters: {
-        USERNAME: email,
-        PASSWORD: password,
-        SECRET_HASH: generateSecretHash(email),
-      },
-    });
-    const response = (await client.send(command)) as InitiateAuthResponse;
-    const IdTokenPayload = jwtDecode(response.AuthenticationResult?.IdToken!);
-    const AccessTokenPayload = jwtDecode(
-      response.AuthenticationResult?.AccessToken!
-    );
+    try {
+        const command = new AWS.InitiateAuthCommand({
+            AuthFlow: "USER_PASSWORD_AUTH",
+            ClientId: CLIENT_ID,
+            AuthParameters: {
+                USERNAME: email,
+                PASSWORD: password,
+                SECRET_HASH: generateSecretHash(email),
+            },
+        });
+        const response = (await client.send(command)) as InitiateAuthResponse;
+        const IdTokenPayload = jwtDecode(response.AuthenticationResult?.IdToken!);
+        const AccessTokenPayload = jwtDecode(
+            response.AuthenticationResult?.AccessToken!
+        );
 
-    return {
-      AuthenticationResult: response.AuthenticationResult,
-      AccessTokenPayload,
-      IdTokenPayload,
-    };
-  } catch (error) {
-    console.error("🚀 ~ initiateAuth ~ error:", error);
-  }
+        return {
+            AuthenticationResult: response.AuthenticationResult,
+            AccessTokenPayload,
+            IdTokenPayload,
+        };
+    } catch (error) {
+        console.error("🚀 ~ initiateAuth ~ error:", error);
+    }
 }
 
-export async function getOAuth2Token(code: string) {
-  const authorizationHeader = `Basic ${Buffer.from(
-    `${CLIENT_ID}:${CLIENT_SECRET}`
-  ).toString("base64")}`;
+export async function getOAuth2Token(code: string): Promise<OAuth2TokenResponse | undefined> {
+    const authorizationHeader = `Basic ${Buffer.from(
+        `${CLIENT_ID}:${CLIENT_SECRET}`
+    ).toString("base64")}`;
 
-  const requestBody = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: CLIENT_ID as string,
-    code: code,
-    redirect_uri: OAUTH_REDIRECT_URL as string,
-  });
+    const requestBody = new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: CLIENT_ID as string,
+        code: code,
+        redirect_uri: OAUTH_REDIRECT_URL as string,
+    });
 
-  // Get tokens
-  const res = await fetch(`${DOMAIN}/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: authorizationHeader,
-    },
-    body: requestBody,
-  });
+    // Get tokens
+    const res = await fetch(`${DOMAIN}/oauth2/token`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: authorizationHeader,
+        },
+        body: requestBody,
+    });
 
-  const data = await res.json();
-  console.log("🚀 ~ getOAuth2Token ~ data:", data);
+    const data = (await res.json()) as OAuth2TokenResponse;
+
+    const id_token_payload = jwtDecode(data.id_token) as JwtPayload;
+    const access_token_payload = jwtDecode(data.access_token) as JwtPayload;
+
+    return {
+        ...data,
+        id_token_payload,
+        access_token_payload,
+    };
+
 }
 
 export async function forgotPassword(email: string) {
-  try {
-    const command = new AWS.ForgotPasswordCommand({
-      ClientId: CLIENT_ID,
-      Username: email,
-      SecretHash: generateSecretHash(email),
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ forgotPassword ~ response:", response);
-  } catch (error) {
-    console.log("🚀 ~ forgotPassword ~ error:", error);
-  }
+    try {
+        const command = new AWS.ForgotPasswordCommand({
+            ClientId: CLIENT_ID,
+            Username: email,
+            SecretHash: generateSecretHash(email),
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ forgotPassword ~ response:", response);
+    } catch (error) {
+        console.log("🚀 ~ forgotPassword ~ error:", error);
+    }
 }
 
 export async function confirmForgotPassword({
-  email,
-  otpCode,
-  newPassword,
+    email,
+    otpCode,
+    newPassword,
 }: ConfirmForgotPassword) {
-  try {
-    const command = new AWS.ConfirmForgotPasswordCommand({
-      ClientId: CLIENT_ID,
-      ConfirmationCode: otpCode,
-      Username: email,
-      Password: newPassword,
-      SecretHash: generateSecretHash(email),
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ confirmForgotPassword ~ response:", response);
-  } catch (error) {
-    console.log("🚀 ~ confirmForgotPassword ~ error:", error);
-  }
+    try {
+        const command = new AWS.ConfirmForgotPasswordCommand({
+            ClientId: CLIENT_ID,
+            ConfirmationCode: otpCode,
+            Username: email,
+            Password: newPassword,
+            SecretHash: generateSecretHash(email),
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ confirmForgotPassword ~ response:", response);
+    } catch (error) {
+        console.log("🚀 ~ confirmForgotPassword ~ error:", error);
+    }
 }
 
 export async function listUsers() {
-  try {
-    const command = new AWS.ListUsersCommand({
-      UserPoolId: USER_POOL_ID,
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ listUsers ~ response:", response);
-  } catch (error) {
-    console.error("🚀 ~ listUsers ~ error:", error);
-  }
+    try {
+        const command = new AWS.ListUsersCommand({
+            UserPoolId: USER_POOL_ID,
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ listUsers ~ response:", response);
+    } catch (error) {
+        console.error("🚀 ~ listUsers ~ error:", error);
+    }
 }
 
 export async function getUser() {
-  try {
-    const session = await auth();
-    const command = new AWS.GetUserCommand({
-      AccessToken: session?.accessToken,
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ getUser ~ response:", response);
-  } catch (error) {
-    console.error("🚀 ~ getUser ~ error:", error);
-  }
+    try {
+        const session = await auth();
+        const command = new AWS.GetUserCommand({
+            AccessToken: session?.accessToken,
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ getUser ~ response:", response);
+    } catch (error) {
+        console.error("🚀 ~ getUser ~ error:", error);
+    }
 }
 
 export async function signOut(token: string) {
-  const session = await auth();
+    const session = await auth();
 
-  try {
-    const command = new AWS.GlobalSignOutCommand({
-      AccessToken: session?.accessToken,
-    });
-    const response = await client.send(command);
-    console.log("🚀 ~ signOut ~ response:", response);
-  } catch (error) {
-    console.log("🚀 ~ signOut ~ error:", error);
-  }
+    try {
+        const command = new AWS.GlobalSignOutCommand({
+            AccessToken: session?.accessToken,
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ signOut ~ response:", response);
+    } catch (error) {
+        console.log("🚀 ~ signOut ~ error:", error);
+    }
 }
 
 function generateSecretHash(username: string) {
-  const hasher = createHmac("sha256", CLIENT_SECRET!);
-  hasher.update(`${username}${CLIENT_ID}`);
-  const secretHash = hasher.digest("base64");
+    const hasher = createHmac("sha256", CLIENT_SECRET!);
+    hasher.update(`${username}${CLIENT_ID}`);
+    const secretHash = hasher.digest("base64");
 
-  return secretHash;
+    return secretHash;
 }
