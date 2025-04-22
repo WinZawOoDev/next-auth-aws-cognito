@@ -1,7 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { signIn as cognitoSignIn } from '@/lib/cognito-auth-provider'
-import { initiateAuth } from "./lib/cognito-identity-client";
+import { getOAuth2Token, initiateAuth } from "./lib/cognito-identity-client";
 
 interface CognitoTokens {
   accessToken: string;
@@ -49,15 +49,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           type: "password",
           name: "password"
         },
+        authorization_code: {
+          type: "text",
+          name: "authorization_code"
+        }
       },
       async authorize(credentials, request) {
 
         let authSession = {} as any;
 
-        const { email, password } = credentials as {
-          email: string;
-          password: string;
-        };
+        const { email, password, authorization_code } = credentials as { email: string, password: string, authorization_code: string };
+
+        if (authorization_code) {
+
+          const oAuth2Response = await getOAuth2Token(authorization_code as string);
+          console.log("🚀 ~ authorize ~ oAuth2Response:", oAuth2Response)
+
+
+          authSession.id = oAuth2Response?.access_token_payload.sub;
+          authSession.name = oAuth2Response?.access_token_payload.username;
+          authSession.email = oAuth2Response?.id_token_payload.email;
+          authSession.accessToken = oAuth2Response?.access_token;
+          authSession.idToken = oAuth2Response?.id_token;
+          authSession.refreshToken = oAuth2Response?.refresh_token;
+
+          return authSession;
+        }
 
         const initiatedAuth = await initiateAuth({ email, password });
         console.log("🚀 ~ authorize ~ initiatedAuth:", initiatedAuth)
