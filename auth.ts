@@ -48,23 +48,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           label: "password",
           type: "password",
           name: "password"
-        },
-        authorization_code: {
-          type: "text",
-          name: "authorization_code"
         }
       },
       async authorize(credentials, request) {
 
         let authSession = {} as any;
 
-        const { email, password, authorization_code } = credentials as { email: string, password: string, authorization_code: string };
+        const { email, password, authorizationCode } = credentials as { email: string, password: string, authorizationCode: string };
 
-        if (authorization_code) {
+        if (authorizationCode) {
 
-          const oAuth2Response = await getOAuth2Token(authorization_code as string);
-          console.log("🚀 ~ authorize ~ oAuth2Response:", oAuth2Response)
-
+          const oAuth2Response = await getOAuth2Token(authorizationCode as string);
 
           authSession.id = oAuth2Response?.access_token_payload.sub;
           authSession.name = oAuth2Response?.access_token_payload.username;
@@ -77,30 +71,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const initiatedAuth = await initiateAuth({ email, password });
-        console.log("🚀 ~ authorize ~ initiatedAuth:", initiatedAuth)
 
         authSession.id = initiatedAuth?.AccessTokenPayload.sub;
-        // authSession.name = initiatedAuth?.AccessTokenPayload;
-        // authSession.email = initiatedAuth?.AuthenticationResult.;
+        authSession.name = initiatedAuth?.AccessTokenPayload.username;
+        authSession.email = initiatedAuth?.IdTokenPayload.email;
         authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
         authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
         authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
-
-
-        // const cognitoSession = await cognitoSignIn({ email, password });
-        // console.log("🚀 ~ authorize ~ cognitoSession:", cognitoSession);
-
-        // const accessToken = cognitoSession?.getAccessToken();
-        // const idToken = cognitoSession?.getIdToken();
-        // const refreshToken = cognitoSession?.getRefreshToken();
-
-        // authSession.id = accessToken?.payload.sub;
-        // authSession.name = accessToken?.payload?.username;
-        // authSession.email = idToken?.payload.email;
-
-        // authSession.accessToken = accessToken?.getJwtToken();
-        // authSession.idToken = idToken?.getJwtToken();
-        // authSession.refreshToken = refreshToken?.getToken();
 
         return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
       },

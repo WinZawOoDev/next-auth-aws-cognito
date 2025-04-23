@@ -1,4 +1,5 @@
 import { signIn } from "@/auth";
+import OAuthLoginForm from "@/components/auth/oauth-login-form";
 import OAuth2Fail from "@/components/auth/oauth2-fail";
 import { getOAuth2Token } from "@/lib/cognito-identity-client";
 import { SearchParams } from "next/dist/server/request/search-params";
@@ -21,16 +22,11 @@ export default async function OAuthSignIn({
     return <OAuth2Fail />;
   }
 
-  const formData = new FormData();
-  formData.append("authorization_code", params.code);
-  // formData.append("redirectTo", "/");
-  await signIn("credentials", formData);
-
   // const data = await getData();
 
   // if (data) {
   //   permanentRedirect("/");
   // }
 
-  return null;
+  return <OAuthLoginForm authorizationCode={params.code} />;
 }

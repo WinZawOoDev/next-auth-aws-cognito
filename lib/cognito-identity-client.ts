@@ -95,8 +95,8 @@ export async function initiateAuth({
     password: string;
 }): Promise<
     | (Pick<InitiateAuthResponse, "AuthenticationResult"> & {
-        AccessTokenPayload: JwtPayload;
-        IdTokenPayload: JwtPayload;
+        AccessTokenPayload: AccessTokenPayload;
+        IdTokenPayload: IdTokenPayload;
     })
     | undefined
 > {
@@ -111,10 +111,10 @@ export async function initiateAuth({
             },
         });
         const response = (await client.send(command)) as InitiateAuthResponse;
-        const IdTokenPayload = jwtDecode(response.AuthenticationResult?.IdToken!);
+        const IdTokenPayload = jwtDecode(response.AuthenticationResult?.IdToken!) as IdTokenPayload;
         const AccessTokenPayload = jwtDecode(
             response.AuthenticationResult?.AccessToken!
-        );
+        ) as AccessTokenPayload
 
         return {
             AuthenticationResult: response.AuthenticationResult,
@@ -150,8 +150,8 @@ export async function getOAuth2Token(code: string): Promise<OAuth2TokenResponse 
 
     const data = (await res.json()) as OAuth2TokenResponse;
 
-    const id_token_payload = jwtDecode(data.id_token) as OAuth2IdTokenPayload;
-    const access_token_payload = jwtDecode(data.access_token) as OAuth2AccessTokenPayload;
+    const id_token_payload = jwtDecode(data.id_token) as IdTokenPayload;
+    const access_token_payload = jwtDecode(data.access_token) as AccessTokenPayload;
 
     return {
         ...data,

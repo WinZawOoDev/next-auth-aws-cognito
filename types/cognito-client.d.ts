@@ -1,15 +1,15 @@
 type OAuth2TokenResponse = {
   access_token: string;
-  access_token_payload: OAuth2AccessTokenPayload;
+  access_token_payload: AccessTokenPayload;
   id_token: string;
-  id_token_payload: OAuth2IdTokenPayload;
+  id_token_payload: IdTokenPayload;
   refresh_token: string;
   token_type: string;
   expires_in: number;
 };
 
 
-type OAuth2IdTokenPayload = {
+type IdTokenPayload = {
   sub: string;
   email_verified: boolean;
   iss: string;
@@ -24,7 +24,7 @@ type OAuth2IdTokenPayload = {
   email: string;
 };
 
-type OAuth2AccessTokenPayload = {
+type AccessTokenPayload = {
   sub: string;
   iss: string;
   version: number;
