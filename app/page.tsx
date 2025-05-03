@@ -10,7 +10,7 @@ import { auth } from "@/auth";
 
 export default async function Page() {
   const sessions = await auth();
-  // console.log("🚀 ~ Page ~ sessions:", sessions);
+  console.log("🚀 ~ Page ~ sessions:", sessions);
 
   return (
     <SidebarProvider

@@ -5,6 +5,7 @@ import { SearchParams } from "next/dist/server/request/search-params";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { permanentRedirect } from "next/navigation";
+import { resendConfirmationCode } from "@/lib/cognito-identity-client";
 
 // Define OTP validation schema
 const otpSchema = z.object({
@@ -45,11 +46,16 @@ async function verifyOTP(formData: FormData) {
 }
 
 // Server action to resend OTP
-async function resendOTP() {
+async function resendOTP(formData: FormData) {
   "use server";
 
-  // Here you would implement the logic to resend the OTP
-  // This is a placeholder for the actual resend logic
+  const email = formData.get("email") as string;
+  if (!email) {
+    throw new Error("Email is required to resend OTP.");
+  }
+  const resentCode = await resendConfirmationCode(email);
+  // Implement logic to resend OTP using the email
+  console.log(`Resending OTP to email: ${email}`);
 }
 
 export default async function VerifyPage({

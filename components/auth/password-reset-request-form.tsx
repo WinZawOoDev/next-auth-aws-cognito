@@ -30,7 +30,7 @@ async function requestPasswordReset(formData: FormData) {
   // Validate email format
   const result = emailSchema.safeParse({ email });
 
-  const requestedForgot = await forgotPassword(email)
+  const requestedForgot = await forgotPassword(email);
 
   // forgotPassword({
   //   email,

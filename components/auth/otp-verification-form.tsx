@@ -34,57 +34,18 @@ export default function OTPVerificationForm({
         <form action={verifyAction} className="space-y-6">
           <div className="flex justify-center">
             <div className="flex gap-2">
-              {/* Individual digit inputs for OTP */}
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-1"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-2"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-3"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-4"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-5"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                name="digit-6"
-                maxLength={1}
-                className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
-                required
-              />
+              {Array.from({ length: 6 }).map((_, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  name={`digit-${index + 1}`}
+                  maxLength={1}
+                  className="h-10 w-10 rounded-md border border-input bg-background text-center text-lg shadow-sm"
+                  required
+                />
+              ))}
             </div>
-
             {/* Hidden input to collect all digits for submission */}
             <input type="hidden" name="otp" id="otp" />
           </div>
@@ -98,6 +59,7 @@ export default function OTPVerificationForm({
         <div className="text-sm text-center">
           Didn't receive a code?{" "}
           <form action={resendAction}>
+            <input type="hidden" name="email" value={email} />
             <button
               type="submit"
               className="text-primary underline-offset-4 hover:underline"

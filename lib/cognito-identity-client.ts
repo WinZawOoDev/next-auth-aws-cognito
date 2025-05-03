@@ -161,8 +161,6 @@ export async function getOAuth2Token(code: string): Promise<OAuth2TokenResponse 
 
 }
 
-
-
 export async function forgotPassword(email: string) {
     try {
         const command = new AWS.ForgotPasswordCommand({
