@@ -1,14 +1,7 @@
-import { signIn } from "@/auth";
 import OAuthLoginForm from "@/components/auth/oauth-login-form";
 import OAuth2Fail from "@/components/auth/oauth2-fail";
-import { getOAuth2Token } from "@/lib/cognito-identity-client";
 import { SearchParams } from "next/dist/server/request/search-params";
 
-async function getData() {
-  // This artificial delay simulates a slow data fetch
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  return { name: "Dashboard Data" };
-}
 
 export default async function OAuthSignIn({
   searchParams,
@@ -22,11 +15,6 @@ export default async function OAuthSignIn({
     return <OAuth2Fail />;
   }
 
-  // const data = await getData();
-
-  // if (data) {
-  //   permanentRedirect("/");
-  // }
 
   return <OAuthLoginForm authorizationCode={params.code} />;
 }

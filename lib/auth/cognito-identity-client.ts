@@ -4,7 +4,7 @@ import {
     type SignUpResponse,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { auth } from "@/auth";
-import { jwtDecode, JwtPayload } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import {
     ConfirmForgotPassword,
     ConfirmRegisteration,
@@ -98,7 +98,7 @@ export async function initiateAuth({
         AccessTokenPayload: AccessTokenPayload;
         IdTokenPayload: IdTokenPayload;
     })
-    | undefined
+    | undefined | null
 > {
     try {
         const command = new AWS.InitiateAuthCommand({
@@ -123,6 +123,7 @@ export async function initiateAuth({
         };
     } catch (error) {
         console.error("🚀 ~ initiateAuth ~ error:", error);
+        return null;
     }
 }
 
@@ -220,7 +221,7 @@ export async function getUser() {
     }
 }
 
-export async function signOut(token: string) {
+export async function signOut() {
     const session = await auth();
 
     try {

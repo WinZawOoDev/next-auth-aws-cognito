@@ -1,7 +1,6 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { signIn as cognitoSignIn } from '@/lib/cognito-auth-provider'
-import { getOAuth2Token, initiateAuth } from "./lib/cognito-identity-client";
+import { getOAuth2Token, initiateAuth } from "@/lib/auth/cognito-identity-client";
 
 interface CognitoTokens {
   accessToken: string;
@@ -17,7 +16,7 @@ declare module "next-auth" {
     user: {
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
-       * In this case, the default session user properties will be overwritten,
+       * In this case, the default session user pUSER_POOL_IDroperties will be overwritten,
        * with the new ones defined above. To keep the default session user properties,
        * you need to add them back into the newly declared interface.
        */
@@ -53,10 +52,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials, request) {
 
         let authSession = {} as any;
-
         const { email, password, authorizationCode } = credentials as { email: string, password: string, authorizationCode: string };
 
         if (authorizationCode) {
+          console.log("🚀 ~ authorize ~ authorizationCode:", authorizationCode)
 
           const oAuth2Response = await getOAuth2Token(authorizationCode as string);
 
@@ -68,18 +67,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           authSession.refreshToken = oAuth2Response?.refresh_token;
 
           return authSession;
+
+        } else {
+
+          const initiatedAuth = await initiateAuth({ email, password });
+          console.log("🚀 ~ authorize ~ initiatedAuth:", initiatedAuth)
+
+          if (!initiatedAuth) {
+            return null
+          }
+
+          authSession.id = initiatedAuth?.AccessTokenPayload.sub;
+          authSession.name = initiatedAuth?.AccessTokenPayload.username;
+          authSession.email = initiatedAuth?.IdTokenPayload.email;
+          authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
+          authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
+          authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
+
+          return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
         }
-
-        const initiatedAuth = await initiateAuth({ email, password });
-
-        authSession.id = initiatedAuth?.AccessTokenPayload.sub;
-        authSession.name = initiatedAuth?.AccessTokenPayload.username;
-        authSession.email = initiatedAuth?.IdTokenPayload.email;
-        authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
-        authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
-        authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
-
-        return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
       },
     }),
   ],

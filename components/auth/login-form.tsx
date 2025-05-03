@@ -1,28 +1,35 @@
+"use client"
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { signIn } from "@/auth";
 import SocialLogin from "./social-login";
+import { loginIn } from "@/lib/auth/server-actions";
+import { useActionState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertCircle } from "lucide-react";
 
-async function handleFormAction(formData: FormData) {
-  "use server";
-  formData.append("redirectTo", "/");
 
-  await signIn("credentials", formData);
+const inintialState = {
+  message: '',
+  error:'',
 }
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const [state, formAction, pending] = useActionState(loginIn, inintialState);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form action={handleFormAction} className="p-6 md:p-8">
+          <form action={formAction} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -30,6 +37,15 @@ export function LoginForm({
                   Login to your Acme Inc account
                 </p>
               </div>
+              {
+                (state.error.length > 1) && (
+                  <Alert variant="destructive" className="mb-1">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Authentication Error</AlertTitle>
+                    <AlertDescription>{state.error}. Please try again.</AlertDescription>
+                  </Alert>
+                )}
+              
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -52,14 +68,14 @@ export function LoginForm({
                 </div>
                 <Input id="password" name="password" type="password" required />
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={pending}>
+                {pending ? 'Loging In...' : 'Login'}
               </Button>
               <SocialLogin />
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link href="/register" className="underline underline-offset-4">
-                  Sign up
+                   Sign up
                 </Link>
               </div>
             </div>

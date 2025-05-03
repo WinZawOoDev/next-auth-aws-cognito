@@ -1,6 +1,3 @@
-import { z } from "zod";
-import { redirect } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,38 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { forgotPassword } from "@/lib/cognito-identity-client";
+import { resetPassword } from "@/lib/auth/server-actions";
 
-// Define email validation schema
-const emailSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-});
-
-// Server action to request password reset
-async function requestPasswordReset(formData: FormData) {
-  "use server";
-
-  // Get email from form data
-  const email = formData.get("email") as string;
-
-  // Validate email format
-  const result = emailSchema.safeParse({ email });
-
-  const requestedForgot = await forgotPassword(email);
-
-  // forgotPassword({
-  //   email,
-  //   onSuccess(data) {
-  //     console.log("🚀 ~ onSuccess ~ data:", data);
-  //   },
-  //   inputVerificationCode(data) {
-  //     console.log("🚀 ~ inputVerificationCode ~ data:", data);
-  //   },
-  //   onFailure(error) {},
-  // });
-
-  redirect(`/reset-password/verify?${new URLSearchParams({ email })}`);
-}
 
 export default function PasswordResetRequestForm() {
   return (
@@ -57,7 +24,7 @@ export default function PasswordResetRequestForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={requestPasswordReset} className="space-y-6">
+        <form action={resetPassword} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

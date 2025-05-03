@@ -1,4 +1,4 @@
-import { getSigningKey, getUser, initiateAuth, listUsers, signUp } from '@/lib/cognito-identity-client';
+import { getSigningKey, getUser, initiateAuth, listUsers, signUp } from '@/lib/auth/cognito-identity-client';
 import { NextResponse } from 'next/server';
 
 export async function GET() {

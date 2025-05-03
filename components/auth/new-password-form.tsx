@@ -1,6 +1,3 @@
-import { z } from "zod";
-import { permanentRedirect, redirect } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,59 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { revalidatePath } from "next/cache";
-import { confirmForgotPassword } from "@/lib/cognito-identity-client";
-
-// Define password validation schema
-const passwordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters" })
-      .regex(/[A-Z]/, {
-        message: "Password must contain at least one uppercase letter",
-      })
-      .regex(/[a-z]/, {
-        message: "Password must contain at least one lowercase letter",
-      })
-      .regex(/[0-9]/, { message: "Password must contain at least one number" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-// Server action to reset password
-async function resetPassword(formData: FormData) {
-  "use server";
-  console.log("🚀 ~ resetPassword ~ formData:", formData);
-  // Get form data
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-  const email = formData.get("email") as string;
-  const otpCode = formData.get("otpCode") as string;
-
-  // Validate password format
-  const result = passwordSchema.safeParse({ password, confirmPassword });
-
-  //   if (!result.success) {
-  //     const errors = result.error.flatten().fieldErrors;
-  //     return {
-  //       success: false,
-  //       message: Object.values(errors)[0]?.[0] || "Invalid password format.",
-  //     };
-  //   }
-
-  const confirmed = await confirmForgotPassword({
-    email,
-    otpCode,
-    newPassword: password,
-  });
-
-  revalidatePath("/login");
-  permanentRedirect("/login");
-}
+import { resetPassword } from "@/lib/auth/server-actions";
 
 export default function NewPasswordForm({
   email,
