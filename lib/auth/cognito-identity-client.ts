@@ -3,8 +3,8 @@ import {
     type InitiateAuthResponse,
     type SignUpResponse,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { auth } from "@/auth";
 import { jwtDecode } from "jwt-decode";
+import { auth } from "@/auth"
 import {
     ConfirmForgotPassword,
     ConfirmRegisteration,
@@ -221,12 +221,11 @@ export async function getUser() {
     }
 }
 
-export async function signOut() {
-    const session = await auth();
+export async function signOut(token: string) {
 
     try {
         const command = new AWS.GlobalSignOutCommand({
-            AccessToken: session?.accessToken,
+            AccessToken: token,
         });
         const response = await client.send(command);
         console.log("🚀 ~ signOut ~ response:", response);

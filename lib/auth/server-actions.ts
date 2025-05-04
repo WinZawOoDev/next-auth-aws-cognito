@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { signIn, signOut, auth } from "@/auth";
 import {
     signOut as cognitoSignOut,
     confirmForgotPassword,
@@ -77,26 +77,23 @@ export async function resendConfirmCode(formData: FormData) {
 }
 
 
-export async function loginIn(prevState: any, formData: FormData): Promise<{ message: string, error: string }> {
+export async function logIn(prevState: any, formData: FormData): Promise<{ message: string, error: string }> {
 
-    try {
-        formData.append("redirectTo", "/");
+    // try {
+    formData.append("redirectTo", "/");
+    await signIn("credentials", formData);
 
-        await signIn("credentials", formData);
-
-        return {
-            message: "Login successful",
-            error: "",
-        }
-
-    } catch (error) {
-        return {
-            error: "Invalid credentials",
-            message: ""
-        }
+    return {
+        message: "Login successful",
+        error: "",
     }
 
-
+    // } catch (error) {
+    //     return {
+    //         error: "Invalid credentials",
+    //         message: ""
+    //     }
+    // }
 }
 
 
@@ -170,10 +167,10 @@ export async function resetPassword(formData: FormData) {
 
 }
 
-
 export async function logOut() {
-    await cognitoSignOut();
-    await signOut();
+    const session = await auth();
+    await cognitoSignOut(session?.accessToken as string);
+    await signOut({ redirectTo: "/" });
 }
 
 

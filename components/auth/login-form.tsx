@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -7,23 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import SocialLogin from "./social-login";
-import { loginIn } from "@/lib/auth/server-actions";
+import { logIn } from "@/lib/auth/server-actions";
 import { useActionState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertCircle } from "lucide-react";
 
-
 const inintialState = {
-  message: '',
-  error:'',
-}
+  message: "",
+  error: "",
+};
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-
-  const [state, formAction, pending] = useActionState(loginIn, inintialState);
+  const [state, formAction, pending] = useActionState(logIn, inintialState);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -37,15 +35,16 @@ export function LoginForm({
                   Login to your Acme Inc account
                 </p>
               </div>
-              {
-                (state.error.length > 1) && (
-                  <Alert variant="destructive" className="mb-1">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Authentication Error</AlertTitle>
-                    <AlertDescription>{state.error}. Please try again.</AlertDescription>
-                  </Alert>
-                )}
-              
+              {state.error.length > 1 && (
+                <Alert variant="destructive" className="mb-1">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Authentication Error</AlertTitle>
+                  <AlertDescription>
+                    {state.error}. Please try again.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -69,13 +68,13 @@ export function LoginForm({
                 <Input id="password" name="password" type="password" required />
               </div>
               <Button type="submit" className="w-full" disabled={pending}>
-                {pending ? 'Loging In...' : 'Login'}
+                {pending ? "Loging In..." : "Login"}
               </Button>
               <SocialLogin />
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link href="/register" className="underline underline-offset-4">
-                   Sign up
+                  Sign up
                 </Link>
               </div>
             </div>

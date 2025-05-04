@@ -55,7 +55,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, password, authorizationCode } = credentials as { email: string, password: string, authorizationCode: string };
 
         if (authorizationCode) {
-          console.log("🚀 ~ authorize ~ authorizationCode:", authorizationCode)
 
           const oAuth2Response = await getOAuth2Token(authorizationCode as string);
 
@@ -71,7 +70,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } else {
 
           const initiatedAuth = await initiateAuth({ email, password });
-          console.log("🚀 ~ authorize ~ initiatedAuth:", initiatedAuth)
 
           if (!initiatedAuth) {
             return null

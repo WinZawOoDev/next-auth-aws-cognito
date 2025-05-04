@@ -23,8 +23,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { signOut } from "@/lib/auth/cognito-identity-client";
 import LogOutForm from "./auth/logout-form";
+import { logOut } from "@/lib/auth/server-actions";
 
 export function NavUser({
   user,
@@ -96,7 +96,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOutForm formAction={signOut} />
+              <LogOutForm formAction={logOut} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
