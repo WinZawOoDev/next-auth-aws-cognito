@@ -122,7 +122,7 @@ export async function initiateAuth({
             IdTokenPayload,
         };
     } catch (error) {
-        console.error("🚀 ~ initiateAuth ~ error:", error);
+        // console.error("🚀 ~ initiateAuth ~ error:", error);
         return null;
     }
 }

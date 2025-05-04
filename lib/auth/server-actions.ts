@@ -7,8 +7,7 @@ import {
     confirmSignUp,
     forgotPassword,
     resendConfirmationCode,
-    signUp,
-
+    signUp
 } from "./cognito-identity-client"
 import { otpSchema, registerSchema, resetPasswordSchema } from "./validator";
 import { permanentRedirect, redirect } from "next/navigation";
@@ -78,22 +77,12 @@ export async function resendConfirmCode(formData: FormData) {
 
 
 export async function logIn(prevState: any, formData: FormData): Promise<{ message: string, error: string }> {
-
-    // try {
     formData.append("redirectTo", "/");
-    await signIn("credentials", formData);
-
+    const sessions = await signIn("credentials", formData);
     return {
         message: "Login successful",
         error: "",
     }
-
-    // } catch (error) {
-    //     return {
-    //         error: "Invalid credentials",
-    //         message: ""
-    //     }
-    // }
 }
 
 

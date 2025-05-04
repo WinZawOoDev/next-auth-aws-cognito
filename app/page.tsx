@@ -4,13 +4,17 @@ import { DataTable } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
 import data from "./data.json";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   const sessions = await auth();
-  console.log("🚀 ~ Page ~ sessions:", sessions);
+  // console.log("🚀 ~ Page ~ sessions:", sessions);
+
+  if (!sessions?.user) {
+    return redirect("/login");
+  }
 
   return (
     <SidebarProvider

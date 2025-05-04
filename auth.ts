@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { CredentialsSignin, type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getOAuth2Token, initiateAuth } from "@/lib/auth/cognito-identity-client";
 
@@ -28,6 +28,10 @@ declare module "next-auth" {
 
 }
 
+class InvalidLoginError extends CredentialsSignin {
+  code = "Invalid identifier or password"
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     newUser: '/register',
@@ -54,35 +58,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         let authSession = {} as any;
         const { email, password, authorizationCode } = credentials as { email: string, password: string, authorizationCode: string };
 
-        if (authorizationCode) {
+        try {
 
-          const oAuth2Response = await getOAuth2Token(authorizationCode as string);
+          if (authorizationCode) {
 
-          authSession.id = oAuth2Response?.access_token_payload.sub;
-          authSession.name = oAuth2Response?.access_token_payload.username;
-          authSession.email = oAuth2Response?.id_token_payload.email;
-          authSession.accessToken = oAuth2Response?.access_token;
-          authSession.idToken = oAuth2Response?.id_token;
-          authSession.refreshToken = oAuth2Response?.refresh_token;
+            const oAuth2Response = await getOAuth2Token(authorizationCode as string);
 
-          return authSession;
+            authSession.id = oAuth2Response?.access_token_payload.sub;
+            authSession.name = oAuth2Response?.access_token_payload.username;
+            authSession.email = oAuth2Response?.id_token_payload.email;
+            authSession.accessToken = oAuth2Response?.access_token;
+            authSession.idToken = oAuth2Response?.id_token;
+            authSession.refreshToken = oAuth2Response?.refresh_token;
 
-        } else {
+            return authSession;
 
-          const initiatedAuth = await initiateAuth({ email, password });
+          } else {
 
-          if (!initiatedAuth) {
-            return null
+            const initiatedAuth = await initiateAuth({ email, password });
+
+            if (!initiatedAuth) {
+              throw new InvalidLoginError("Invalid credentials")
+            }
+
+            authSession.id = initiatedAuth?.AccessTokenPayload.sub;
+            authSession.name = initiatedAuth?.AccessTokenPayload.username;
+            authSession.email = initiatedAuth?.IdTokenPayload.email;
+            authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
+            authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
+            authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
+
+            return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
           }
 
-          authSession.id = initiatedAuth?.AccessTokenPayload.sub;
-          authSession.name = initiatedAuth?.AccessTokenPayload.username;
-          authSession.email = initiatedAuth?.IdTokenPayload.email;
-          authSession.accessToken = initiatedAuth?.AuthenticationResult?.AccessToken;
-          authSession.idToken = initiatedAuth?.AuthenticationResult?.IdToken;
-          authSession.refreshToken = initiatedAuth?.AuthenticationResult?.RefreshToken;
+        } catch (error) {
 
-          return { ...authSession, ...initiatedAuth?.AccessTokenPayload };
         }
       },
     }),
