@@ -36,7 +36,7 @@ export async function signUp({
     email,
     phoneNumber,
     password,
-}: SignUpCredential): Promise<SignUpResponse | undefined> {
+}: SignUpCredential): Promise<SignUpResponse | undefined | null> {
     try {
 
         const command = new AWS.SignUpCommand({
@@ -54,6 +54,7 @@ export async function signUp({
         return response;
     } catch (error) {
         console.error("🚀 ~ signUp ~ error:", error);
+        return null;
     }
 }
 
@@ -70,6 +71,7 @@ export async function confirmSignUp({ email, otpCode }: ConfirmRegisteration) {
         return response;
     } catch (error) {
         console.log("🚀 ~ confirmSignUp ~ error:", error);
+        return null;
     }
 }
 

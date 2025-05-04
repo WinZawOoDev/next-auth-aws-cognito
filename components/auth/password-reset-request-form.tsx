@@ -10,8 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { resetPassword } from "@/lib/auth/server-actions";
-
+import { passwordForgot } from "@/lib/auth/server-actions";
 
 export default function PasswordResetRequestForm() {
   return (
@@ -24,7 +23,7 @@ export default function PasswordResetRequestForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={resetPassword} className="space-y-6">
+        <form action={passwordForgot} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

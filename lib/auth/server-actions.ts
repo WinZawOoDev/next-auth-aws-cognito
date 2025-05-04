@@ -44,14 +44,9 @@ export async function registerUser(prevState: any, formData: FormData) {
         }
     }
 
-    try {
+    const registered = await signUp({ email, password });
 
-        const registered = await signUp({ email, password });
-        console.log("🚀 ~ registerUser ~ registered:", registered);
-
-        return redirect(`/register/verify?${new URLSearchParams({ email })}`);
-
-    } catch (error) {
+    if (!registered) {
         return {
             success: false,
             errors: {
@@ -59,14 +54,26 @@ export async function registerUser(prevState: any, formData: FormData) {
             },
         }
     }
+
+    return redirect(`/register/verify?${new URLSearchParams({ email })}`);
 }
 
 
 export async function confirmRegister(formData: FormData) {
-    const email = formData.get("email") as string;
-    const otpCode = formData.get("otpCode") as string;
 
+    let otpCode = '';
+    const email = formData.get("email") as string;
+    Array.from({ length: 6 }).forEach((_, index) => {
+        const digit = formData.get(`digit-${index + 1}`) as string;
+        otpCode += digit;
+    });
     const confirmed = await confirmSignUp({ email, otpCode });
+
+    if (!confirmed) {
+        return;
+    }
+
+    redirect(`/login`);
 }
 
 
