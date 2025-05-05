@@ -12,6 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { permanentRedirect } from "next/navigation";
+import Image from "next/image";
+import Placeholder from "@/public/placeholder.svg";
 
 const inintialState = {
   message: undefined,
@@ -106,9 +108,11 @@ export function LoginForm({
             </div>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
+            <Image
+              src={Placeholder}
               alt="Image"
+              width={500}
+              height={500}
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
