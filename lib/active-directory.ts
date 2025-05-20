@@ -1,12 +1,14 @@
 import { Client } from 'ldapts'
 
 const domainName = process.env.ACTIVE_DIRECTORY_DOMAIN || '';
+const url = `ldap://${domainName}:389`;
 
 const client = new Client({
-    url: `ldap://${domainName}:389`,
+    url,
     timeout: 0,
     connectTimeout: 0,
 });
+
 
 
 export async function authenticate(username: string, password: string): Promise<boolean> {
@@ -27,7 +29,7 @@ export async function authenticate(username: string, password: string): Promise<
 export async function getUserInfo(username: string, password: string): Promise<any> {
     try {
         await client.bind(username, password);
-        const { searchEntries } = await client.search('dc=winzawoo,dc=site', {
+        const { searchEntries } = await client.search('ou=Users,dc=winzawoo,dc=site', {
             filter: `(uid=${username})`,
             scope: 'sub',
             attributes: ['dn', 'sn', 'cn', 'mail'],
