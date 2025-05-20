@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import ADFSLogo  from "@/public/active-directory-access-control.svg"
+import ADFSLogo from "@/public/active-directory-access-control.svg";
 
 function handleSocialLogin({
   identityProviderName,

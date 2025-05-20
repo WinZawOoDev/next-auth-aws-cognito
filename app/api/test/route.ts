@@ -1,13 +1,14 @@
-import { getUser, initiateAuth, listUsers, signUp } from '@/lib/auth/cognito-identity-client';
 import { NextResponse } from 'next/server';
+import { authenticate, getUserInfo } from "@/lib/active-directory";
 
 export async function GET() {
 
-    // await signUp({email: "winzawoo.dev@gmail.com", password: "12@#Wi0#nio8"});
-    // await listUsers();
-    // await  initiateAuth({email: "winzawoo.dev@gmail.com", "password": "12@#Wa909AZn$"})
-    // await getUser();
+    const isAuthenticated = await authenticate('jack@winzawoo.site', '1#$!30WeER0')
 
+    console.log('Authenticated successfully');
+
+    const userInfo = await getUserInfo('jack@winzawoo.site', '1#$!30WeER0');
+    console.log("🚀 ~ GET ~ userInfo:", userInfo)
 
     return NextResponse.json({ message: 'Hello, this is your GET API route!' });
 }
