@@ -1,7 +1,13 @@
 import { Client, Entry } from 'ldapts'
 
+type UserCredential = {
+    username: string;
+    password: string;
+}
+
 const domainName = process.env.ACTIVE_DIRECTORY_DOMAIN || '';
 const url = `ldap://${domainName}:389`;
+const searchDN = 'dc=kbz,dc=bank';
 
 const client = new Client({
     url,
@@ -9,7 +15,31 @@ const client = new Client({
     connectTimeout: 0,
 });
 
-export async function authenticate(username: string, password: string): Promise<boolean> {
+const attributes: string[] = [
+    'userPrincipalName',
+    'sAMAccountName',
+    'operatingSystem',
+    'operatingSystemVersion',
+    'ou',
+    'displayName',
+    'mail',
+    'telephoneNumber',
+    'dNSHostName',
+    'mobile',
+    'department',
+    'title',
+    'distinguishedName',
+    'whenCreated',
+    'whenChanged',
+    'lastLogonTimestamp',
+    'pwdLastSet',
+    'accountExpires',
+    'userAccountControl',
+    'memberOf',
+    'mail'
+];
+
+export async function authenticate({ username, password }: UserCredential): Promise<boolean> {
     let isAuthenticated = false;
     try {
         await client.bind(username, password);
@@ -23,38 +53,23 @@ export async function authenticate(username: string, password: string): Promise<
     return isAuthenticated;
 }
 
+export async function getUserInfo({ username, password }: UserCredential): Promise<Entry[] | null> {
+    const fetchUser = await fetchAD({ username, password, filterBy: `(userPrincipalName=${username})` });
+    return fetchUser;
+}
 
-export async function getUserInfo(username: string, password: string): Promise<Entry[] | null> {
+export async function getAllUsers({ username, password }: UserCredential): Promise<Entry[] | null> {
+    const fetchUsers = await fetchAD({ username, password, filterBy: '(&(objectClass=user)(sAMAccountName=*))' });
+    return fetchUsers;
+}
+
+async function fetchAD({ username, password, filterBy }: UserCredential & { filterBy: string }) {
     try {
-
         await client.bind(username, password);
-
-        const { searchEntries, searchReferences } = await client.search('dc=winzawoo,dc=site', {
-            filter: `(userPrincipalName=${username})`,
+        const { searchEntries } = await client.search(searchDN, {
+            filter: filterBy,
             scope: 'sub',
-            attributes: [
-                'userPrincipalName',
-                'sAMAccountName',
-                'operatingSystem',
-                'operatingSystemVersion',
-                'ou',
-                'displayName',
-                'mail',
-                'telephoneNumber',
-                'dNSHostName',
-                'mobile',
-                'department',
-                'title',
-                'distinguishedName',
-                'whenCreated',
-                'whenChanged',
-                'lastLogonTimestamp',
-                'pwdLastSet',
-                'accountExpires',
-                'userAccountControl',
-                'memberOf',
-                'mail'
-            ],
+            attributes,
         });
         return searchEntries;
     } catch (error) {
@@ -64,11 +79,3 @@ export async function getUserInfo(username: string, password: string): Promise<E
         await client.unbind();
     }
 }
-
-function formatTime(ldapTime: string): string {
-    const cleaned = ldapTime.replace(/\.\d+Z$/, "Z");
-    const date = new Date(cleaned);
-    const readable = date.toLocaleString();
-    return readable;
-}
-
