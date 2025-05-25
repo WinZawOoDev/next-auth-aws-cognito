@@ -47,12 +47,7 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
+      title: "AD Users",
       url: "#",
       icon: IconFolder,
     },
