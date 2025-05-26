@@ -48,7 +48,7 @@ const data = {
     },
     {
       title: "AD Users",
-      url: "#",
+      url: "/ad-users",
       icon: IconFolder,
     },
     {

@@ -16,6 +16,8 @@ const client = new Client({
 });
 
 const attributes: string[] = [
+    'objectSid',
+    'objectGUID',
     'userPrincipalName',
     'sAMAccountName',
     'operatingSystem',

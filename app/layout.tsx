@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +34,22 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <SessionProvider session={session}>
+          <SidebarProvider
+            style={
+              {
+                "--sidebar-width": "calc(var(--spacing) * 72)",
+                "--header-height": "calc(var(--spacing) * 12)",
+              } as React.CSSProperties
+            }
+          >
+            <AppSidebar variant="inset" />
+            <SidebarInset>
+              <SiteHeader />
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+        </SessionProvider>
       </body>
     </html>
   );
