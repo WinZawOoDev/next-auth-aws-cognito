@@ -8,7 +8,6 @@ type OAuth2TokenResponse = {
   expires_in: number;
 };
 
-
 type IdTokenPayload = {
   sub: string;
   email_verified: boolean;
@@ -38,3 +37,22 @@ type AccessTokenPayload = {
   jti: string;
   username: string;
 };
+
+type Identities = {
+  dateCreated: string;
+  userId: string;
+  providerName: string;
+  providerType: string;
+}
+
+type CognitoUser = {
+  id: number;
+  Username?: string;
+  UserStatus?: string;
+  Enabled?: boolean;
+  UserCreateDate: string;
+  UserLastModifiedDate: string
+  Email: string;
+  Email_verified?: boolean;
+  Identities: Identities[];
+}

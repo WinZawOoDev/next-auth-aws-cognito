@@ -198,17 +198,59 @@ export async function confirmForgotPassword({
     }
 }
 
-export async function listUsers() {
+export async function listUsers(): Promise<CognitoUser[] | undefined> {
     try {
+
         const command = new AWS.ListUsersCommand({
             UserPoolId: USER_POOL_ID,
         });
+
         const response = await client.send(command);
-        console.log("🚀 ~ listUsers ~ response:", response);
+
+        let users: CognitoUser[] = [];
+        response.Users?.forEach((user, index) => {
+            const userIdentities: Identities[] = parseIdentities(user.Attributes || []);
+            const cognitoUser: CognitoUser = {
+                id: index + 1,
+                Username: user.Username,
+                UserStatus: user.UserStatus,
+                Enabled: user.Enabled,
+                Email: user.Attributes?.find(attr => attr.Name === "email")?.Value || "",
+                Email_verified: Boolean(user.Attributes?.find(attr => attr.Name === "email_verified")?.Value),
+                UserCreateDate: user.UserCreateDate?.toISOString() || "",
+                UserLastModifiedDate: user.UserLastModifiedDate?.toISOString() || "",
+                Identities: userIdentities,
+            }
+            users.push(cognitoUser)
+        })
+        return users;
     } catch (error) {
         console.error("🚀 ~ listUsers ~ error:", error);
     }
 }
+
+
+function parseIdentities(attributes: AWS.AttributeType[]): Identities[] {
+    // console.log("🚀 ~ parseIdentities ~ attributes:", attributes)
+    const identitiesAttribute = attributes.find(attr => attr.Name === 'identities');
+    if (!identitiesAttribute) {
+        return [];
+    }
+
+    try {
+        const identities = JSON.parse(identitiesAttribute.Value!) as Identities[];
+        return identities.map(identity => ({
+            dateCreated: identity.dateCreated,
+            userId: identity.userId,
+            providerName: identity.providerName,
+            providerType: identity.providerType,
+        }));
+    } catch (error) {
+        console.error('Failed to parse identities:', error);
+        return [];
+    }
+}
+
 
 export async function getUser() {
     try {

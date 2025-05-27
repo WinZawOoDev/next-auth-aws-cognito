@@ -72,13 +72,13 @@ import {
 
 export const userSchema = z.object({
   id: z.number(),
-  displayName: z.string(),
-  mail: z.string().email(),
-  department: z.string().optional(),
-  title: z.string().optional(),
-  userPrincipalName: z.string().email(),
-  sAMAccountName: z.string(),
-  distinguishedName: z.string(),
+  Username: z.string().optional(),
+  UserStatus: z.string().optional(),
+  Enabled: z.boolean().optional(),
+  Email: z.string().optional(),
+  Email_verified: z.boolean().optional(),
+  UserCreateDate: z.string(),
+  UserLastModifiedDate: z.string(),
 });
 
 // Create a separate component for the drag handle
@@ -134,51 +134,44 @@ const columns: ColumnDef<z.infer<typeof userSchema>>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "displayName",
-    header: "Display Name",
+    accessorKey: "Username",
+    header: "User Name",
     cell: ({ row }) => {
-      return <div className="">{row.original.displayName}</div>;
+      return <div className="">{row.original.Username}</div>;
     },
     enableHiding: false,
   },
   {
-    accessorKey: "mail",
-    header: () => <div className="text-center">Mail</div>,
+    accessorKey: "Email",
+    header: () => <div className="text-center">Email</div>,
     cell: ({ row }) => (
       <div className="w-32">
-        <div className="px-1.5">{row.original.mail}</div>
+        <div className="px-1.5">{row.original.Email}</div>
       </div>
     ),
   },
   {
-    accessorKey: "department",
-    header: () => <div className="w-full text-center">Department</div>,
+    accessorKey: "UserStatus",
+    header: () => <div className="w-full text-center">User Status</div>,
     cell: ({ row }) => (
-      <div className="px-1.5 text-center">{row.original.department}</div>
+      <div className="px-1.5 text-center">{row.original.UserStatus}</div>
     ),
   },
   {
-    accessorKey: "title",
-    header: () => <div className="w-full text-center">Title</div>,
+    accessorKey: "Email_verified",
+    header: () => <div className="w-full text-center">Email Verified</div>,
     cell: ({ row }) => (
-      <div className="px-1.5 text-center">{row.original.title}</div>
+      <div className="px-1.5 text-center">
+        {String(row.original.Email_verified)}
+      </div>
     ),
   },
   {
-    accessorKey: "userPrincipalName",
-    header: () => <div className="w-full text-center">User Principal Name</div>,
+    accessorKey: "UserCreateDate",
+    header: () => <div className="w-full text-center">User Create Date</div>,
     cell: ({ row }) => (
-      <div className="px-1.5 text-center">{row.original.userPrincipalName}</div>
+      <div className="px-1.5 text-center">{row.original.UserCreateDate}</div>
     ),
-  },
-  {
-    accessorKey: "distinguishedName",
-    header: "Distinguished Name",
-    cell: ({ row }) => {
-      return (
-        <div className="line-clamp-2">{row.original.distinguishedName}</div>
-      );
-    },
   },
   {
     id: "actions",
@@ -231,11 +224,13 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof userSchema>> }) {
   );
 }
 
-export function ADUsersDataTable({
+export function CognitoUsersDataTable({
   data: initialData,
 }: {
   data: z.infer<typeof userSchema>[];
 }) {
+  console.log("🚀 ~ initialData:", initialData);
+
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =

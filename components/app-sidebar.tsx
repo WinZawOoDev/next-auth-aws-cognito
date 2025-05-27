@@ -42,19 +42,14 @@ const data = {
   },
   navMain: [
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Cognito Users",
+      url: "/cognito-users",
+      icon: IconUsers,
     },
     {
       title: "AD Users",
       url: "/ad-users",
       icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
     },
   ],
   navClouds: [
