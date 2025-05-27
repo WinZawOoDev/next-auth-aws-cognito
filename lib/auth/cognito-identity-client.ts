@@ -265,6 +265,21 @@ export async function getUser() {
     }
 }
 
+export async function listGroups() {
+    try {
+        const command = new AWS.ListGroupsCommand({
+            UserPoolId: USER_POOL_ID,
+            Limit: 20,
+        });
+        const response = await client.send(command);
+        console.log("🚀 ~ listGroups ~ response:", response);
+        return response.Groups;
+    } catch (error) {
+        console.error("🚀 ~ listGroups ~ error:", error);
+
+    }
+}
+
 export async function signOut(token: string) {
 
     try {
@@ -293,3 +308,4 @@ async function generateSecretHash(username: string): Promise<string> {
     const signature = await crypto.subtle.sign("HMAC", key, data);
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
+
